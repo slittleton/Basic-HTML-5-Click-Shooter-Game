@@ -1,0 +1,17 @@
+    
+    
+    
+    
+    
+    // put projectiles starting in middle of screen then use atan() to set angle to where user clicked
+    /**
+     *            click
+     *           /|
+     *         /  |
+     * center/____|
+     * 
+     * sinT/cosT = tanT (ie.hypotenus)
+     * sin(T) = y value
+     * cost(T) = x value
+     *  T = angle
+     */
