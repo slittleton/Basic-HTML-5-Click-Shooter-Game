@@ -1,0 +1,11 @@
+Install
+
+    npm install
+
+Create Build - goes into dist folder
+
+    npm run build
+
+Run Server
+
+    npm run dev
