@@ -45,6 +45,8 @@ let y = 400;
 
 const enemies = [];
 let enemyCount = 3;
+const explosions = [];
+
 spawnEnemies(enemyCount);
 function spawnEnemies(spawnCount) {
     spawnCount = spawnCount + 1;
@@ -65,17 +67,47 @@ function spawnEnemies(spawnCount) {
 
 const buildings = [];
 let activeTile = undefined;
-
-
+let hearts = 10;
+let coins = 100;
 function animate() {
-    requestAnimationFrame(animate);
+    const animationId = requestAnimationFrame(animate);
+
     c.drawImage(image, 0, 0);
 
     for (let i = enemies.length - 1; i >= 0; i--) {
         const enemy = enemies[i];
         enemy.update();
+
+        if (enemy.position.x > canvas.width) {
+            enemies.splice(i, 1);
+            hearts -= 1;
+            document.querySelector('#heart-count').innerHTML = hearts;
+
+            if (hearts === 0) {
+                console.log('game over');
+                let gameOverEl = document.querySelector('#game-over').style.display = 'flex';
+
+                cancelAnimationFrame(animationId);
+            }
+        }
     }
 
+
+    //draw explosions
+    for (let i = explosions.length - 1; i >= 0; i--) {
+        const explosion = explosions[i];
+        // explosion.draw();
+        // explosion.update();
+        if (explosion.frames.current >= explosion.frames.max) {
+            explosions.splice(i, 1);
+        }
+    }
+
+
+    if (enemies.length === 0) {
+        enemyCount += 2;
+        spawnEnemies(enemyCount);
+    }
 
     placementTiles.forEach(tile => {
         tile.update(mouse);
@@ -120,35 +152,43 @@ function animate() {
                     // REMOVE ENEMY
                     if (enemyIndex > -1) {
                         enemies.splice(enemyIndex, 1);
+                        coins += 25;
                     }
-
-                    if (enemies.length === 0) {
-                        enemyCount += 2;
-                        spawnEnemies(enemyCount);
-                    }
-
-
 
                 }
+
+                // EXPLOSION
+                explosions.push(new Sprite({
+                    x: projectile.x,
+                    y: projectile.y
+                },
+                    '../assets/explosion.png',
+                    { max: 4 },
+                    0));
                 // REMOVE PROJECTILE AFTER IT HITS ENEMY
                 building.projectiles.splice(i, 1);
             }
         }
 
     }
-
+    document.querySelector('#coin-count').innerHTML = coins;
 }
 
 animate();
 
 canvas.addEventListener('click', (event) => {
-    if (activeTile && !activeTile.isOccupied) {
+    if (activeTile && !activeTile.isOccupied && coins - 5 >= 0) {
+
+        coins -= 50;
+
         buildings.push(new Building({
             x: activeTile.position.x,
             y: activeTile.position.y
         }));
         activeTile.isOccupied = true;
-
+        buildings.sort((a, b) => {
+            return b.position.y - a.position.y;
+        });
     }
 });
 
